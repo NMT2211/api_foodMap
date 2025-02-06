@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import DAOS.QuanAnDao;
 import DAOS.QuanAnDaoImpl;
 import ENTITYS.QuanAn;
+import ENTITYS.HinhAnhQuanAn;
 
 /**
  * Servlet implementation class listQuanAn_api
@@ -25,22 +26,17 @@ public class listQuanAn_api extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final QuanAnDao quanAnDao = new QuanAnDaoImpl();
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public listQuanAn_api() {
         super();
     }
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Thêm header CORS
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
         response.setHeader("Access-Control-Max-Age", "3600");
 
-        // Xử lý yêu cầu OPTIONS
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
             return;
@@ -49,9 +45,6 @@ public class listQuanAn_api extends HttpServlet {
         super.service(request, response);
     }
 
-    /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
@@ -61,7 +54,6 @@ public class listQuanAn_api extends HttpServlet {
             String pathInfo = request.getPathInfo();
 
             if (pathInfo == null || pathInfo.equals("/")) {
-                // Lấy danh sách tất cả quán ăn
                 List<QuanAn> danhSachQuanAn = quanAnDao.findAll();
                 JSONArray jsonArray = new JSONArray();
 
@@ -78,12 +70,19 @@ public class listQuanAn_api extends HttpServlet {
                     json.put("openingHours", quanAn.getGioMoCua());
                     json.put("averagePrice", quanAn.getGiaTrungBinh());
                     json.put("rating", quanAn.getDiemDanhGia());
+
+                    // Lấy danh sách hình ảnh
+                    JSONArray imageArray = new JSONArray();
+                    for (HinhAnhQuanAn hinhAnh : quanAn.getHinhAnhList()) {
+                        imageArray.put(hinhAnh.getLinkHinhAnh());
+                    }
+                    json.put("images", imageArray);
+
                     jsonArray.put(json);
                 }
                 out.print(jsonArray.toString());
             } else {
-                // Lấy thông tin quán ăn theo ID
-                String idStr = pathInfo.substring(1); // Bỏ dấu "/"
+                String idStr = pathInfo.substring(1);
                 Integer id;
 
                 try {
@@ -112,6 +111,14 @@ public class listQuanAn_api extends HttpServlet {
                     json.put("openingHours", quanAn.getGioMoCua());
                     json.put("averagePrice", quanAn.getGiaTrungBinh());
                     json.put("rating", quanAn.getDiemDanhGia());
+
+                    // Lấy danh sách hình ảnh
+                    JSONArray imageArray = new JSONArray();
+                    for (HinhAnhQuanAn hinhAnh : quanAn.getHinhAnhList()) {
+                        imageArray.put(hinhAnh.getLinkHinhAnh());
+                    }
+                    json.put("images", imageArray);
+
                     out.print(json.toString());
                 }
             }
@@ -124,9 +131,6 @@ public class listQuanAn_api extends HttpServlet {
         }
     }
 
-    /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);

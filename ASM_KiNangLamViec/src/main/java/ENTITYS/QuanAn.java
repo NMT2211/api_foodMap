@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -48,4 +49,7 @@ public class QuanAn {
 
     @Column(name = "DiemDanhGia", precision = 3)
     private Double diemDanhGia;
+
+    @OneToMany(mappedBy = "quanAn", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<HinhAnhQuanAn> hinhAnhList;
 }
